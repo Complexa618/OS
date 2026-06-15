@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>My System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070A;--bg2:#0F0F12;--bg3:#18181C;--bg4:#222228;--bg5:#2A2A32;
+  --border:#1E1E24;--border2:#2E2E38;--border3:#3A3A46;
+  --text:#F2F2F7;--text2:#9898A8;--text3:#4A4A5A;--text4:#2E2E3A;
+  --green:#16C97A;--green2:#0EA865;--green-bg:rgba(22,201,122,0.08);--green-bd:rgba(22,201,122,0.22);--green-glow:rgba(22,201,122,0.15);
+  --red:#F04747;--red-bg:rgba(240,71,71,0.08);--red-bd:rgba(240,71,71,0.22);
+  --amber:#F5A623;--amber-bg:rgba(245,166,35,0.08);--amber-bd:rgba(245,166,35,0.22);
+  --blue:#4A90E2;--blue-bg:rgba(74,144,226,0.08);--blue-bd:rgba(74,144,226,0.22);
+  --purple:#A259FF;--purple-bg:rgba(162,89,255,0.08);--purple-bd:rgba(162,89,255,0.22);
+  --cyan:#00D4FF;--cyan-bg:rgba(0,212,255,0.08);
+  --r:8px;--r2:12px;--r3:16px;
+  --sidebar:220px;
+  --transition:.18s ease;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;min-height:100vh}
+body{display:flex;overflow-x:hidden}
+
+/* ═══ SCROLLBAR ═══ */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border3);border-radius:4px}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar{
+  width:var(--sidebar);min-height:100vh;background:var(--bg2);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;
+  padding:18px 0;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;
+  overflow-y:auto;z-index:50
+}
+.logo{padding:0 14px 18px;border-bottom:1px solid var(--border);margin-bottom:14px}
+.logo-mark{font-size:15px;font-weight:700;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}
+.logo-icon{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--green),#0EA865);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;box-shadow:0 0 14px var(--green-glow)}
+.logo-sub{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:4px;letter-spacing:.04em}
+.nav-section{padding:0 8px;margin-bottom:18px}
+.nav-label{font-size:9.5px;font-weight:600;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;padding:0 8px;margin-bottom:6px}
+.nav-btn{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);
+  cursor:pointer;color:var(--text3);font-size:12.5px;border:none;background:none;
+  width:100%;text-align:left;transition:all var(--transition);margin-bottom:2px;font-family:'Inter',sans-serif
+}
+.nav-btn:hover{background:var(--bg3);color:var(--text2)}
+.nav-btn.active{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.nav-btn svg{width:14px;height:14px;flex-shrink:0;opacity:.5;transition:opacity var(--transition)}
+.nav-btn:hover svg{opacity:.8}
+.nav-btn.active svg{opacity:1}
+.nav-btn-badge{margin-left:auto;font-size:10px;font-family:'JetBrains Mono',monospace;background:var(--bg4);padding:1px 6px;border-radius:20px;color:var(--text3)}
+.nav-btn.active .nav-btn-badge{background:var(--green-bg);color:var(--green)}
+.sidebar-bottom{margin-top:auto;padding:14px 14px 0;border-top:1px solid var(--border)}
+.streak-card{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:10px 12px;margin-bottom:10px}
+.streak-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.streak-lbl{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.streak-val{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--green);line-height:1}
+.streak-fire{font-size:16px}
+.streak-sub{font-size:10px;color:var(--text3)}
+.date-chip{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:6px}
+
+/* ═══ MAIN ═══ */
+.main{margin-left:var(--sidebar);flex:1;padding:24px 24px 80px;min-height:100vh;max-width:calc(100vw - var(--sidebar))}
+.page{display:none}.page.active{display:block}
+
+/* ═══ PAGE HEADER ═══ */
+.ph{margin-bottom:22px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.ph-left{}
+.ph-title{font-size:22px;font-weight:700;letter-spacing:-.5px;line-height:1.2}
+.ph-sub{font-size:12px;color:var(--text3);margin-top:3px;font-family:'JetBrains Mono',monospace}
+.ph-right{display:flex;gap:8px;align-items:center}
+
+/* ═══ METRIC GRID ═══ */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:16px}
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;position:relative;overflow:hidden;transition:border-color var(--transition)}
+.mc:hover{border-color:var(--border3)}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0;background:transparent;transition:background var(--transition)}
+.mc.g::before{background:linear-gradient(90deg,var(--green),transparent)}
+.mc.r::before{background:linear-gradient(90deg,var(--red),transparent)}
+.mc.a::before{background:linear-gradient(90deg,var(--amber),transparent)}
+.mc.b::before{background:linear-gradient(90deg,var(--blue),transparent)}
+.mc.p::before{background:linear-gradient(90deg,var(--purple),transparent)}
+.mc-label{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.mc-val{font-size:22px;font-weight:700;letter-spacing:-.5px;font-family:'JetBrains Mono',monospace;line-height:1}
+.mc-val.g{color:var(--green)}.mc-val.r{color:var(--red)}.mc-val.a{color:var(--amber)}.mc-val.b{color:var(--blue)}.mc-val.p{color:var(--purple)}
+.mc-sub{font-size:10px;color:var(--text3);margin-top:5px}
+.mc-delta{font-size:10px;margin-top:3px;display:flex;align-items:center;gap:3px;font-family:'JetBrains Mono',monospace}
+.mc-delta.up{color:var(--green)}.mc-delta.dn{color:var(--red)}
+
+/* ═══ CARDS ═══ */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:12px}
+.card-hd{font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-hd-left{display:flex;align-items:center;gap:8px}
+.card-hd-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+.card-hd-action{font-size:11px;color:var(--green);cursor:pointer;font-weight:500;text-transform:none;letter-spacing:0;padding:3px 8px;border-radius:var(--r);border:1px solid var(--green-bd);background:var(--green-bg);transition:all var(--transition)}
+.card-hd-action:hover{background:var(--green);color:#000}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* ═══ FORMS ═══ */
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.fg.full{grid-column:1/-1}
+label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+input,select,textarea{
+  background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);
+  padding:9px 11px;font-size:13px;color:var(--text);font-family:'Inter',sans-serif;
+  outline:none;transition:border-color var(--transition),box-shadow var(--transition);width:100%
+}
+input:focus,select:focus,textarea:focus{border-color:var(--green-bd);box-shadow:0 0 0 3px var(--green-glow)}
+input::placeholder{color:var(--text4)}
+select option{background:var(--bg3)}
+textarea{resize:vertical;min-height:72px}
+.btn{
+  padding:8px 16px;border-radius:var(--r);border:1px solid var(--border2);background:none;
+  cursor:pointer;font-size:12.5px;font-weight:500;color:var(--text2);font-family:'Inter',sans-serif;
+  transition:all var(--transition);display:inline-flex;align-items:center;gap:6px
+}
+.btn:hover{background:var(--bg3);color:var(--text);border-color:var(--border3)}
+.btn-g{background:var(--green-bg);border-color:var(--green-bd);color:var(--green)}
+.btn-g:hover{background:var(--green);color:#000;box-shadow:0 0 20px var(--green-glow)}
+.btn-r{background:var(--red-bg);border-color:var(--red-bd);color:var(--red)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fgrid .fg{margin-bottom:0}
+.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.fgrid3 .fg{margin-bottom:0}
+
+/* ═══ DIVIDER ═══ */
+.divider{height:1px;background:var(--border);margin:14px 0}
+
+/* ═══ EMPTY ═══ */
+.empty{text-align:center;padding:32px;color:var(--text3);font-size:12px;font-family:'JetBrains Mono',monospace}
+.empty-icon{font-size:28px;margin-bottom:8px;opacity:.4}
+
+/* ═══ SCROLLBOX ═══ */
+.scrollbox{max-height:340px;overflow-y:auto;padding-right:2px}
+
+/* ═══ CHART WRAPPERS ═══ */
+.chart-wrap{position:relative;height:200px;margin-top:4px}
+.chart-wrap-sm{position:relative;height:150px;margin-top:4px}
+.chart-wrap-lg{position:relative;height:240px;margin-top:4px}
+
+/* ═══ BADGES ═══ */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.badge-t{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.badge-b{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)}
+.badge-e{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
+
+/* ═══ HABITS ═══ */
+.habit-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.habit-row:last-child{border-bottom:none}
+.habit-info{flex:1;min-width:0}
+.habit-name{font-size:13px;font-weight:500;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.habit-trig{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.week-dots{display:flex;gap:4px;align-items:center;margin-top:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--bg4);transition:all var(--transition)}
+.dot.on{background:var(--green);box-shadow:0 0 6px var(--green-glow)}
+.dot.now{border:1.5px solid var(--green);background:transparent}
+.check{
+  width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border2);background:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;
+  transition:all var(--transition);flex-shrink:0;color:var(--text3)
+}
+.check:hover{border-color:var(--green-bd);color:var(--green);background:var(--green-bg)}
+.check.on{background:var(--green-bg);border-color:var(--green-bd);color:var(--green)}
+
+/* ═══ MVA BANNER ═══ */
+.mva{
+  background:linear-gradient(135deg,rgba(22,201,122,0.06),rgba(22,201,122,0.02));
+  border:1px solid var(--green-bd);border-radius:var(--r2);padding:12px 16px;
+  margin-bottom:16px;font-size:12px;color:var(--text2);display:flex;align-items:flex-start;gap:10px
+}
+.mva-icon{font-size:16px;flex-shrink:0;margin-top:-1px}
+.mva strong{color:var(--green)}
+
+/* ═══ TRADING ═══ */
+.trade-row{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border);gap:8px}
+.trade-row:last-child{border-bottom:none}
+.trade-left{flex:1;min-width:0}
+.trade-pair{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.trade-meta{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.trade-note-txt{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5;max-width:300px}
+.trade-right{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.pnl{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700}
+.pnl.win{color:var(--green)}.pnl.loss{color:var(--red)}.pnl.payout{color:var(--amber)}
+.rr-badge{font-size:10px;padding:2px 7px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-weight:600}
+.rr-pos{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.rr-neg{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.emo-badge{font-size:10px;padding:2px 7px;border-radius:5px;font-weight:500}
+.emo-calm{background:var(--blue-bg);color:var(--blue)}
+.emo-fomo{background:var(--red-bg);color:var(--red)}
+.emo-revenge{background:var(--purple-bg);color:var(--purple)}
+.emo-over{background:var(--amber-bg);color:var(--amber)}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:3px 6px;border-radius:var(--r);line-height:1;transition:all var(--transition);flex-shrink:0}
+.del-btn:hover{color:var(--red);background:var(--red-bg)}
+.type-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.type-dot.win{background:var(--green)}.type-dot.loss{background:var(--red)}.type-dot.payout{background:var(--amber)}
+
+/* ═══ FILTER TABS ═══ */
+.filter-tabs{display:flex;gap:4px;background:var(--bg3);padding:3px;border-radius:var(--r);border:1px solid var(--border);width:fit-content;margin-bottom:14px}
+.filter-tab{padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--text3);border:none;background:none;font-family:'Inter',sans-serif;transition:all var(--transition);white-space:nowrap}
+.filter-tab.on{background:var(--bg2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.filter-tab.g.on{color:var(--green)}
+.filter-tab.r.on{color:var(--red)}
+.filter-tab.a.on{color:var(--amber)}
+
+/* ═══ CALENDAR ═══ */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px}
+.cal-day-hd{font-size:9px;color:var(--text3);text-align:center;padding:3px 0;font-family:'JetBrains Mono',monospace}
+.cal-day{
+  aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-family:'JetBrains Mono',monospace;cursor:default;border:1px solid transparent;
+  position:relative;transition:all var(--transition)
+}
+.cal-day.empty{background:transparent}
+.cal-day.neutral{background:var(--bg3);color:var(--text4)}
+.cal-day.win{background:rgba(22,201,122,0.14);color:var(--green);border-color:var(--green-bd)}
+.cal-day.loss{background:rgba(240,71,71,0.14);color:var(--red);border-color:var(--red-bd)}
+.cal-day.today-mark{box-shadow:0 0 0 2px var(--green)}
+.cal-day:not(.empty):hover{transform:scale(1.08)}
+.cal-month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.cal-month-title{font-size:12.5px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.cal-nav-btn{background:none;border:1px solid var(--border2);border-radius:var(--r);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:12px;font-family:'Inter',sans-serif;transition:all var(--transition)}
+.cal-nav-btn:hover{background:var(--bg3);border-color:var(--border3)}
+.cal-legend{display:flex;gap:12px;margin-top:8px}
+.cal-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.cal-legend-dot{width:8px;height:8px;border-radius:50%}
+
+/* ═══ STRAT ANALYSIS ═══ */
+.strat-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.strat-row:last-child{border-bottom:none}
+.strat-name{font-size:13px;font-weight:500}
+.strat-stats{font-size:10.5px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px;display:flex;gap:8px}
+.strat-pnl{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px}
+.wr-bar-wrap{height:3px;background:var(--bg4);border-radius:3px;margin-top:5px;width:80px}
+.wr-bar{height:3px;border-radius:3px;background:var(--green);transition:width .5s ease}
+
+/* ═══ DEEP WORK TIMER ═══ */
+.timer-card{text-align:center;padding:8px 0 20px}
+.focus-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;justify-content:center}
+.chip{
+  padding:6px 14px;border-radius:20px;border:1px solid var(--border2);background:none;
+  cursor:pointer;font-size:12px;color:var(--text3);transition:all var(--transition);font-family:'Inter',sans-serif
+}
+.chip:hover{color:var(--text2);border-color:var(--border3)}
+.chip.on{border-color:var(--green-bd);color:var(--green);background:var(--green-bg)}
+.timer-display{position:relative;display:inline-block;margin-bottom:8px}
+.timer-ring{transform:rotate(-90deg)}
+.timer-num{
+  font-size:64px;font-weight:300;font-family:'JetBrains Mono',monospace;
+  letter-spacing:-3px;line-height:1;transition:color .3s;position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap
+}
+.timer-num.run{color:var(--green)}
+.timer-num.brk{color:var(--amber)}
+.timer-simple{font-size:64px;font-weight:300;font-family:'JetBrains Mono',monospace;letter-spacing:-3px;line-height:1;transition:color .3s;display:block;text-align:center;margin-bottom:12px}
+.timer-simple.run{color:var(--green)}
+.prog-wrap{height:2px;background:var(--border);border-radius:2px;margin:0 0 8px;overflow:hidden}
+.prog-bar{height:2px;border-radius:2px;background:var(--green);transition:width 1s linear;box-shadow:0 0 8px var(--green-glow)}
+.prog-bar.brk{background:var(--amber)}
+.timer-lbl{font-size:10.5px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:16px}
+.timer-btns{display:flex;justify-content:center;gap:8px;margin-bottom:16px}
+.dur-chips{display:flex;gap:6px;justify-content:center}
+.sess-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.sess-row:last-child{border-bottom:none}
+.sess-left{display:flex;align-items:center;gap:8px}
+.sess-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.sess-cat{color:var(--text2);font-weight:500}
+.sess-time{font-family:'JetBrains Mono',monospace;color:var(--text3);font-size:11px}
+
+/* ═══ TASKS ═══ */
+.task-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.task-item:last-child{border-bottom:none}
+.task-cb{
+  width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border2);flex-shrink:0;
+  cursor:pointer;margin-top:1px;display:flex;align-items:center;justify-content:center;
+  font-size:10px;transition:all var(--transition)
+}
+.task-cb.on{background:var(--green-bg);border-color:var(--green-bd);color:var(--green)}
+.task-txt{flex:1;font-size:13px;line-height:1.4}
+.task-txt.done{text-decoration:line-through;color:var(--text3)}
+.task-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 5px;transition:all var(--transition)}
+.task-del:hover{color:var(--red)}
+.priority-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.p-high{background:var(--red)}.p-med{background:var(--amber)}.p-low{background:var(--green)}
+.ti-row{display:flex;gap:7px;margin-bottom:10px}
+.ti-row input{flex:1}
+.seg{display:flex;gap:0;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:2px;margin-bottom:12px}
+.seg-btn{flex:1;padding:5px 6px;border:none;background:none;cursor:pointer;font-size:11px;color:var(--text3);border-radius:6px;font-family:'Inter',sans-serif;transition:all var(--transition)}
+.seg-btn.on{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.5)}
+
+/* ═══ JOURNAL ═══ */
+.jentry{padding:10px 0;border-bottom:1px solid var(--border)}
+.jentry:last-child{border-bottom:none}
+.jdate{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:5px}
+.jtext{font-size:12px;color:var(--text2);line-height:1.65}
+
+/* ═══ REVIEW ═══ */
+.rv-q{font-size:12.5px;font-weight:600;color:var(--text2);margin:14px 0 6px;display:flex;align-items:center;gap:6px}
+.rv-q:first-of-type{margin-top:0}
+.rating-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.rating-tag{
+  padding:6px 14px;border-radius:20px;font-size:12px;border:1px solid var(--border2);
+  cursor:pointer;color:var(--text3);background:none;font-family:'Inter',sans-serif;transition:all var(--transition)
+}
+.rating-tag:hover{border-color:var(--border3);color:var(--text2)}
+.rating-tag.on{border-color:var(--green-bd);color:var(--green);background:var(--green-bg)}
+
+/* ═══ TOOLTIPS ═══ */
+[data-tip]{position:relative;cursor:help}
+[data-tip]:hover::after{
+  content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r);padding:5px 10px;
+  font-size:11px;color:var(--text);white-space:nowrap;pointer-events:none;z-index:100;
+  font-family:'JetBrains Mono',monospace
+}
+
+/* ═══ RISK METER ═══ */
+.risk-meter{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);margin-bottom:10px}
+.risk-meter-bar-wrap{flex:1;height:6px;background:var(--bg4);border-radius:6px;overflow:hidden}
+.risk-meter-bar{height:6px;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--amber),var(--red));transition:width .4s ease}
+.risk-meter-label{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.risk-meter-val{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;min-width:40px;text-align:right}
+
+/* ═══ INSIGHT CARDS ═══ */
+.insight{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:var(--r);margin-bottom:8px}
+.insight.g{background:var(--green-bg);border:1px solid var(--green-bd)}
+.insight.r{background:var(--red-bg);border:1px solid var(--red-bd)}
+.insight.a{background:var(--amber-bg);border:1px solid var(--amber-bd)}
+.insight-icon{font-size:16px;flex-shrink:0}
+.insight-text{font-size:12px;line-height:1.5}
+.insight.g .insight-text{color:var(--green)}
+.insight.r .insight-text{color:var(--red)}
+.insight.a .insight-text{color:var(--amber)}
+
+/* ═══ STAT ROW ═══ */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+.stat-label{font-size:12px;color:var(--text2)}
+.stat-val{font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:500}
+
+/* ═══ MOBILE ═══ */
+.hamburger{
+  display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--bg2);
+  border:1px solid var(--border2);border-radius:var(--r);padding:8px;cursor:pointer;color:var(--text)
+}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:49;backdrop-filter:blur(2px)}
+@media(max-width:800px){
+  :root{--sidebar:0px}
+  .sidebar{transform:translateX(-100%);transition:transform .25s cubic-bezier(.4,0,.2,1);z-index:50;width:240px}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:14px;padding-top:54px}
+  .hamburger{display:flex}
+  .overlay.show{display:block}
+  .g2,.g3,.fgrid,.fgrid3{grid-template-columns:1fr}
+  .mg{grid-template-columns:repeat(2,1fr)}
+  .timer-simple{font-size:52px}
+  .ph{flex-direction:column}
+}
+@media(max-width:480px){.mg{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()" aria-label="მენიუ">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">⚡</div>
+      My System
+    </div>
+    <div class="logo-sub">personal OS · v2.0</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <button class="nav-btn active" data-page="dashboard" onclick="nav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-btn" data-page="today" onclick="nav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+      დღეს
+      <span class="nav-btn-badge" id="nb-today">0/7</span>
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">ბიზნესი</div>
+    <button class="nav-btn" data-page="trading" onclick="nav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      თრეიდინგი
+      <span class="nav-btn-badge" id="nb-trades">0</span>
+    </button>
+    <button class="nav-btn" data-page="ecom" onclick="nav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      E-Commerce
+    </button>
+    <button class="nav-btn" data-page="deepwork" onclick="nav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Deep Work
+      <span class="nav-btn-badge" id="nb-dw">0სთ</span>
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">ანალიზი</div>
+    <button class="nav-btn" data-page="stats" onclick="nav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      სტატისტიკა
+    </button>
+    <button class="nav-btn" data-page="review" onclick="nav(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      კვირის მიმოხილვა
+    </button>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="streak-card">
+      <div class="streak-top">
+        <div>
+          <div class="streak-lbl">სტრიქი</div>
+          <div class="streak-val" id="sStreak">0</div>
+          <div class="streak-sub">დღე ზედიზედ</div>
+        </div>
+        <div class="streak-fire">🔥</div>
+      </div>
+    </div>
+    <div class="date-chip" id="sDate"></div>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ═══════════════════════════════════════
+     DASHBOARD
+═══════════════════════════════════════ -->
+<div class="page active" id="page-dashboard">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-title" id="greet">გამარჯობა</div>
+      <div class="ph-sub" id="phDate"></div>
+    </div>
+  </div>
+
+  <!-- Top metrics -->
+  <div class="mg">
+    <div class="mc g"><div class="mc-label">თვის PnL</div><div class="mc-val g" id="dm-pnl">$0</div><div class="mc-sub">Trading P&L</div></div>
+    <div class="mc g"><div class="mc-label">Win Rate</div><div class="mc-val" id="dm-wr">—</div><div class="mc-sub">ამ თვეში</div></div>
+    <div class="mc b"><div class="mc-label">E-Com შემ.</div><div class="mc-val b" id="dm-erev">$0</div><div class="mc-sub">ამ თვეში</div></div>
+    <div class="mc a"><div class="mc-label">Deep Work</div><div class="mc-val a" id="dm-dw">0სთ</div><div class="mc-sub">ეს კვირა</div></div>
+    <div class="mc"><div class="mc-label">ჰაბიტი %</div><div class="mc-val" id="dm-hab">0%</div><div class="mc-sub">ეს კვირა</div></div>
+    <div class="mc g"><div class="mc-label">სულ შემ.</div><div class="mc-val g" id="dm-total">$0</div><div class="mc-sub">კომბინ.</div></div>
+  </div>
+
+  <!-- Insights row -->
+  <div id="dashInsights" style="margin-bottom:14px"></div>
+
+  <!-- Charts row 1 -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-hd-left"><div class="card-hd-dot"></div>Equity Curve</div>
+        <span class="card-hd-action" onclick="nav(document.querySelector('[data-page=trading]'))">+ ტრეიდი</span>
+      </div>
+      <div class="chart-wrap-lg"><canvas id="equityChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--amber)"></div>კვირის PnL</div></div>
+      <div class="chart-wrap-lg"><canvas id="weeklyChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Charts row 2 -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--blue)"></div>E-Com vs Trading</div></div>
+      <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--purple)"></div>ემოციების ანალიზი</div></div>
+      <div class="chart-wrap"><canvas id="emoChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Strategy + Deep Work stats -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot"></div>სტრატეგიის ანალიზი</div></div>
+      <div id="stratAnalysis"><div class="empty"><div class="empty-icon">📊</div>ტრეიდები არ არის</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--amber)"></div>Deep Work — კვირა</div></div>
+      <div class="chart-wrap-sm"><canvas id="dashDwChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TODAY
+═══════════════════════════════════════ -->
+<div class="page" id="page-today">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-title">დღეს</div>
+      <div class="ph-sub">შენი ყოველდღიური სისტემა</div>
+    </div>
+  </div>
+
+  <div class="mva">
+    <div class="mva-icon">⚡</div>
+    <span><strong>MVA — ყველაზე ცუდ დღეს:</strong> 1 ტრეიდ ანალიზი · 10 წთ ვარჯიში · 1 E-Com ამოცანა · 1სთ Deep Work — ეს მინიმუმია</span>
+  </div>
+
+  <div class="mg">
+    <div class="mc g"><div class="mc-label">შეს. ჰაბიტი</div><div class="mc-val g" id="t-done">0/7</div></div>
+    <div class="mc"><div class="mc-label">კვირის %</div><div class="mc-val" id="t-wpct">0%</div></div>
+    <div class="mc a"><div class="mc-label">Deep Work</div><div class="mc-val a" id="t-dw">0სთ</div></div>
+    <div class="mc"><div class="mc-label">სტრიქი</div><div class="mc-val" id="t-streak">0🔥</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot"></div>ჰაბიტები</div></div>
+      <div id="habitList"></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--blue)"></div>დღის ჟურნალი</div></div>
+      <textarea id="journalTxt" placeholder="რა მოხდა? რა ვისწავლე? ხვალ რა შევცვალო?..." style="min-height:110px"></textarea>
+      <div style="margin-top:9px;display:flex;justify-content:flex-end">
+        <button class="btn btn-g btn-sm" onclick="saveJournal()">შენახვა</button>
+      </div>
+      <div id="journalHistory" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TRADING
+═══════════════════════════════════════ -->
+<div class="page" id="page-trading">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-title">თრეიდინგი</div>
+      <div class="ph-sub">Smart journal · ICT Methodology</div>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="mg">
+    <div class="mc g"><div class="mc-label">თვის PnL</div><div class="mc-val g" id="tr-pnl">$0</div><div class="mc-sub">ამ თვეში</div></div>
+    <div class="mc"><div class="mc-label">Win Rate</div><div class="mc-val" id="tr-wr">—</div><div class="mc-sub" id="tr-wl-sub">0W / 0L</div></div>
+    <div class="mc a"><div class="mc-label">საშ. R:R</div><div class="mc-val a" id="tr-rr">—</div><div class="mc-sub">Risk/Reward</div></div>
+    <div class="mc a"><div class="mc-label">Max R:R</div><div class="mc-val a" id="tr-maxrr">—</div><div class="mc-sub">საუკეთესო</div></div>
+    <div class="mc g"><div class="mc-label">Payout</div><div class="mc-val g" id="tr-po">$0</div><div class="mc-sub">გატანილი</div></div>
+    <div class="mc b"><div class="mc-label">საუკ. სტრატ.</div><div class="mc-val b" id="tr-best">—</div><div class="mc-sub">by PnL</div></div>
+  </div>
+
+  <!-- Risk meter -->
+  <div id="riskMeterWrap" style="display:none">
+    <div class="risk-meter">
+      <div class="risk-meter-label">Risk Level</div>
+      <div class="risk-meter-bar-wrap"><div class="risk-meter-bar" id="riskBar" style="width:0%"></div></div>
+      <div class="risk-meter-val" id="riskVal">—</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <!-- Entry form -->
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot"></div>ახალი ჩანაწერი</div></div>
+      <div class="fgrid">
+        <div class="fg"><label>წყვილი / ინსტრ.</label><input type="text" id="tr-pair" placeholder="EUR/USD, BTC, NAS100..."/></div>
+        <div class="fg"><label>სტრატეგია / Setup</label><input type="text" id="tr-strat" placeholder="BOS, FVG, OB, MSS..."/></div>
+        <div class="fg"><label>PnL ($)</label><input type="number" id="tr-amt" placeholder="0" step="0.01"/></div>
+        <div class="fg"><label>ტიპი</label>
+          <select id="tr-type">
+            <option value="win">✅ მოგება</option>
+            <option value="loss">❌ წაგება</option>
+            <option value="payout">💰 Payout</option>
+          </select>
+        </div>
+        <div class="fg"><label>Risk ($)</label><input type="number" id="tr-risk" placeholder="0" step="0.01" oninput="calcRR()"/></div>
+        <div class="fg"><label>Reward ($)</label><input type="number" id="tr-reward" placeholder="0" step="0.01" oninput="calcRR()"/></div>
+        <div class="fg"><label>ემოცია / სტეიტი</label>
+          <select id="tr-emo">
+            <option value="calm">😌 Disciplined · გეგმა</option>
+            <option value="fomo">😰 FOMO · ჩქარობდი</option>
+            <option value="revenge">😤 Revenge · ემოცია</option>
+            <option value="over">🤩 Overconfident</option>
+          </select>
+        </div>
+        <div class="fg"><label>სესია</label>
+          <select id="tr-sess">
+            <option value="london">🇬🇧 London</option>
+            <option value="ny">🗽 New York</option>
+            <option value="asian">🌏 Asian</option>
+            <option value="overlap">🔁 Overlap</option>
+          </select>
+        </div>
+        <div class="fg"><label>თარიღი</label><input type="date" id="tr-date"/></div>
+        <div class="fg">
+          <label>R:R (auto)</label>
+          <input type="text" id="tr-rr-display" placeholder="შეავსე Risk + Reward" readonly style="color:var(--green);cursor:default"/>
+        </div>
+        <div class="fg full"><label>გაკვეთილი / ანალიზი</label><textarea id="tr-note" placeholder="Entry reason? Mistakes? What did ICT say?..."></textarea></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn" onclick="clearTradeForm()">გასუფთ.</button>
+        <button class="btn btn-g" onclick="addTrade()">+ ჩანაწერი</button>
+      </div>
+    </div>
+
+    <!-- Equity + Calendar -->
+    <div>
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot"></div>Equity Curve</div></div>
+        <div class="chart-wrap"><canvas id="trEquityChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-hd-left"><div class="card-hd-dot" style="background:var(--blue)"></div>Trading Calendar</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+            <span class="cal-month-title" id="calTitle"></span>
+            <button class="cal-nav-btn" onclick="calNext()">›</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--green)"></div>მოგება</div>
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--red)"></div>წაგება</div>
+          <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--bg4)"></div>ტრეიდი არ იყო</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trade list -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-hd-left"><div class="card-hd-dot"></div>ჩანაწერები</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span id="tradeCount" style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace"></span>
+      </div>
+    </div>
+    <div class="filter-tabs" id="tradeTabs">
+      <button class="filter-tab on" onclick="setTFilter('all',this)">ყველა</button>
+      <button class="filter-tab g" onclick="setTFilter('win',this)">✅ მოგება</button>
+      <button class="filter-tab r" onclick="setTFilter('loss',this)">❌ წაგება</button>
+      <button class="filter-tab a" onclick="setTFilter('payout',this)">💰 Payout</button>
+    </div>
+    <div class="scrollbox" id="tradeList"><div class="empty"><div class="empty-icon">📈</div>ჩანაწერი არ არის</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     E-COMMERCE
+═══════════════════════════════════════ -->
+<div class="page" id="page-ecom">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-title">E-Commerce</div>
+      <div class="ph-sub">ყოველდღიური ოპერაციები</div>
+    </div>
+  </div>
+
+  <div class="mg">
+    <div class="mc g"><div class="mc-label">თვის შემ.</div><div class="mc-val g" id="ec-rev">$0</div></div>
+    <div class="mc"><div class="mc-label">შეკვეთები</div><div class="mc-val" id="ec-ord">0</div></div>
+    <div class="mc b"><div class="mc-label">Avg Order</div><div class="mc-val b" id="ec-aov">—</div></div>
+    <div class="mc"><div class="mc-label">კონვ. %</div><div class="mc-val" id="ec-conv">—</div></div>
+    <div class="mc g"><div class="mc-label">ROAS</div><div class="mc-val g" id="ec-roas">—</div></div>
+    <div class="mc a"><div class="mc-label">ამოც. შეს.</div><div class="mc-val a" id="ec-tasks">0/0</div></div>
+  </div>
+
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--blue)"></div>მეტრიკების განახლება</div></div>
+        <div class="fgrid">
+          <div class="fg"><label>შემოსავალი ($)</label><input type="number" id="ec-rev-in" placeholder="0"/></div>
+          <div class="fg"><label>Ad Spend ($)</label><input type="number" id="ec-spend-in" placeholder="0"/></div>
+          <div class="fg"><label>შეკვეთები</label><input type="number" id="ec-ord-in" placeholder="0"/></div>
+          <div class="fg"><label>კონვ. %</label><input type="number" id="ec-conv-in" placeholder="0.0" step="0.1"/></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end"><button class="btn btn-g btn-sm" onclick="saveEcom()">შენახვა</button></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--blue)"></div>შემ. ისტორია</div></div>
+        <div class="chart-wrap-sm"><canvas id="ecomChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--amber)"></div>ამოცანები</div></div>
+      <div class="seg" id="prioritySeg">
+        <button class="seg-btn on" onclick="setPriority('all',this)">ყველა</button>
+        <button class="seg-btn" onclick="setPriority('high',this)">🔴</button>
+        <button class="seg-btn" onclick="setPriority('med',this)">🟡</button>
+        <button class="seg-btn" onclick="setPriority('low',this)">🟢</button>
+      </div>
+      <div class="ti-row">
+        <input type="text" id="taskIn" placeholder="ახალი ამოცანა..." onkeydown="if(event.key==='Enter')addTask()"/>
+        <select id="taskPri" style="width:80px">
+          <option value="high">🔴</option>
+          <option value="med" selected>🟡</option>
+          <option value="low">🟢</option>
+        </select>
+        <button class="btn btn-g btn-sm" onclick="addTask()">+</button>
+      </div>
+      <div class="scrollbox" id="taskList"><div class="empty"><div class="empty-icon">✅</div>ამოცანა დაამატე</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     DEEP WORK
+═══════════════════════════════════════ -->
+<div class="page" id="page-deepwork">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-title">Deep Work</div>
+      <div class="ph-sub">2–3 სთ. ფოკუსი — ყოველ დღე · Cal Newport method</div>
+    </div>
+  </div>
+
+  <div class="mg">
+    <div class="mc a"><div class="mc-label">დღეს</div><div class="mc-val a" id="dw-today">0სთ</div></div>
+    <div class="mc"><div class="mc-label">კვირა სულ</div><div class="mc-val" id="dw-week">0სთ</div></div>
+    <div class="mc g"><div class="mc-label">სესიები</div><div class="mc-val g" id="dw-sessions">0</div></div>
+    <div class="mc"><div class="mc-label">საშ. სესია</div><div class="mc-val" id="dw-avg">0წთ</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--amber)"></div>ფოკუსის ტიმერი</div></div>
+      <div class="focus-chips" id="focusChips">
+        <button class="chip on" onclick="setFocus('თრეიდინგი',this)">📈 თრეიდინგი</button>
+        <button class="chip" onclick="setFocus('E-Commerce',this)">🛒 E-Commerce</button>
+        <button class="chip" onclick="setFocus('სტრატეგია',this)">🧠 სტრატეგია</button>
+        <button class="chip" onclick="setFocus('სწავლება',this)">📚 სწავლება</button>
+        <button class="chip" onclick="setFocus('SMMA',this)">📱 SMMA</button>
+      </div>
+      <div style="text-align:center">
+        <div class="timer-simple" id="timerNum">25:00</div>
+        <div class="prog-wrap"><div class="prog-bar" id="progBar" style="width:100%"></div></div>
+        <div class="timer-lbl" id="timerLbl">მზადაა · ფოკუს სესია</div>
+        <div class="timer-btns">
+          <button class="btn btn-g" id="startBtn" onclick="timerAct()">▶ დაწყება</button>
+          <button class="btn" onclick="resetTimer()">↺ განულება</button>
+        </div>
+        <div class="dur-chips">
+          <button class="chip on" id="d25" onclick="setDur(25,this)">25წთ</button>
+          <button class="chip" id="d50" onclick="setDur(50,this)">50წთ</button>
+          <button class="chip" id="d90" onclick="setDur(90,this)">90წთ</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--amber)"></div>კვირის სტატისტიკა</div></div>
+        <div class="chart-wrap-sm"><canvas id="dwChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot"></div>დღევანდელი სესიები</div></div>
+        <div id="sessLog"><div class="empty"><div class="empty-icon">⏱</div>სესია ჯერ არ დაწყებულა</div></div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;align-items:center">
+          <span style="color:var(--text3)">სულ დღეს</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:var(--green);font-weight:600" id="dwTotal">0:00სთ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     STATS
+═══════════════════════════════════════ -->
+<div class="page" id="page-stats">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-title">სტატისტიკა</div>
+      <div class="ph-sub">სრული ანალიზი · Trading + Deep Work + Habits</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot"></div>Trading — სრული სტატ.</div></div>
+      <div id="fullStratAnalysis"><div class="empty">ტრეიდები არ არის</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--blue)"></div>სესიის ანალიზი</div></div>
+      <div class="chart-wrap-sm"><canvas id="sessChart"></canvas></div>
+      <div style="margin-top:12px" id="sessAnalysis"></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--amber)"></div>Deep Work — ბოლო 30 დღე</div></div>
+      <div class="chart-wrap"><canvas id="dwLongChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--green)"></div>ჰაბიტ სტატ. — ბოლო 4 კვირა</div></div>
+      <div class="chart-wrap"><canvas id="habitChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--purple)"></div>ემოცია vs PnL კორელაცია</div></div>
+    <div id="emoCorrelation"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     REVIEW
+═══════════════════════════════════════ -->
+<div class="page" id="page-review">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-title">კვირის მიმოხილვა</div>
+      <div class="ph-sub">სისტემა უმჯობესდება — ყოველ კვირა</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot"></div>ეს კვირა</div></div>
+      <div class="rating-row">
+        <span style="font-size:10px;color:var(--text3);align-self:center;font-family:'JetBrains Mono',monospace">შეფ:</span>
+        <button class="rating-tag on" onclick="setRating(1,this)">😔 სუსტი</button>
+        <button class="rating-tag" onclick="setRating(2,this)">😐 საშ.</button>
+        <button class="rating-tag" onclick="setRating(3,this)">😊 კარგი</button>
+        <button class="rating-tag" onclick="setRating(4,this)">🔥 შესანიშნავი</button>
+      </div>
+      <div class="rv-q">✅ რა კარგად მუშაობდა?</div>
+      <textarea id="rv1" placeholder="ჰაბიტი, სისტემა, სტრატეგია..."></textarea>
+      <div class="rv-q">❌ რა ვერ შევასრულე?</div>
+      <textarea id="rv2" placeholder="რა იყო ფრიქცია?"></textarea>
+      <div class="rv-q">🔧 როგორ გავამარტივო?</div>
+      <textarea id="rv3" placeholder="ფრიქციის შემცირების გეგმა..."></textarea>
+      <div class="rv-q">📈 Trading გაკვეთილი</div>
+      <textarea id="rv4" placeholder="ემოცია, setup, risk, ICT..."></textarea>
+      <div class="rv-q">🛒 E-Com გამარჯვება</div>
+      <textarea id="rv5" placeholder="რა გაიზარდა, რა ჩავამატე..."></textarea>
+      <div class="rv-q">⚡ MVA განახლება</div>
+      <textarea id="rv6" placeholder="რა შევცვალო სისტემაში..."></textarea>
+      <div style="margin-top:14px;display:flex;justify-content:flex-end">
+        <button class="btn btn-g" onclick="saveReview()">შენახვა</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left"><div class="card-hd-dot" style="background:var(--blue)"></div>გასული მიმოხილვები</div></div>
+      <div class="scrollbox" id="reviewHist"><div class="empty"><div class="empty-icon">📖</div>ჯერ მიმოხილვა არ არის</div></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════
+// STATE + PERSISTENCE
+// ═══════════════════════════════════════
+const LS={
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+const S={
+  habits: LS.get('ms_h',{}),
+  trades: LS.get('ms_t',[]),
+  journal: LS.get('ms_j',{}),
+  sessions: LS.get('ms_se',[]),
+  tasks: LS.get('ms_ta',{}),
+  ecom: LS.get('ms_ec',{history:[]}),
+  reviews: LS.get('ms_r',[]),
+};
+function save(){
+  LS.set('ms_h',S.habits);LS.set('ms_t',S.trades);LS.set('ms_j',S.journal);
+  LS.set('ms_se',S.sessions);LS.set('ms_ta',S.tasks);LS.set('ms_ec',S.ecom);LS.set('ms_r',S.reviews);
+}
+
+const TK=()=>new Date().toISOString().slice(0,10);
+const MONTHS=['იანვ','თებ','მარ','აპრ','მაი','ივნ','ივლ','აგვ','სექ','ოქტ','ნოე','დეკ'];
+const MONTHS_FULL=['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'];
+const DAYS=['კვ','ორ','სამ','ოთ','ხუ','პა','შა'];
+
+const HABITS=[
+  {id:'h1',name:'ბაზრის ანალიზი',cat:'t',trig:'კომპ. გახსნა → ანალიზი'},
+  {id:'h2',name:'სავაჭრო გეგმა',cat:'t',trig:'ანალიზი → გეგმის წერა'},
+  {id:'h3',name:'ტრეიდ ჟურნალი',cat:'t',trig:'ტრეიდის შემდეგ → ჩანაწ.'},
+  {id:'h4',name:'Deep Work სესია',cat:'e',trig:'ყავა → სესიის გახსნა'},
+  {id:'h5',name:'E-Com ამოცანები',cat:'e',trig:'სესია → task list'},
+  {id:'h6',name:'ვარჯიში',cat:'b',trig:'საუზმე → gym/home'},
+  {id:'h7',name:'8სთ. ძილი',cat:'b',trig:'22:00 → ტელ. გამ.'},
+];
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function nav(el){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  const pg=el.dataset.page;
+  document.getElementById('page-'+pg).classList.add('active');
+  if(window.innerWidth<=800){
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  }
+  const renders={
+    dashboard:renderDashboard,today:renderToday,trading:renderTrading,
+    ecom:renderEcom,deepwork:()=>{renderDW();renderDWMetrics();},
+    stats:renderStats,review:renderReview
+  };
+  if(renders[pg])renders[pg]();
+}
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+// ═══════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════
+const charts={};
+function mkChart(id,cfg){
+  if(charts[id])charts[id].destroy();
+  const c=document.getElementById(id);if(!c)return null;
+  charts[id]=new Chart(c,cfg);return charts[id];
+}
+const gridCol='rgba(255,255,255,0.04)';
+const baseOpts={
+  responsive:true,maintainAspectRatio:false,
+  plugins:{
+    legend:{display:false},
+    tooltip:{backgroundColor:'#18181C',borderColor:'#2E2E38',borderWidth:1,titleColor:'#9898A8',bodyColor:'#F2F2F7',padding:10,cornerRadius:8}
+  },
+  scales:{
+    x:{grid:{color:gridCol},ticks:{color:'#4A4A5A',font:{size:9,family:'JetBrains Mono'}}},
+    y:{grid:{color:gridCol},ticks:{color:'#4A4A5A',font:{size:9,family:'JetBrains Mono'}}}
+  }
+};
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+function init(){
+  const h=new Date().getHours();
+  const g=h<6?'🌙 ღამე მშვიდობისა':h<12?'🌅 დილა მშვიდობისა':h<18?'☀️ გამარჯობა, გიორგი':'🌆 საღამო მშვიდობისა';
+  const el=document.getElementById('greet');if(el)el.textContent=g;
+  const now=new Date();
+  const ds=`${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS_FULL[now.getMonth()]} ${now.getFullYear()}`;
+  const phd=document.getElementById('phDate');if(phd)phd.textContent=ds;
+  const sd=document.getElementById('sDate');if(sd)sd.textContent=ds;
+  const trd=document.getElementById('tr-date');if(trd)trd.value=TK();
+  loadEcomInputs();
+  renderDashboard();
+  renderToday();
+  updateNavBadges();
+  renderCalendar();
+}
+
+function updateNavBadges(){
+  const tk=TK();
+  const done=S.habits[tk]||{};
+  const cnt=Object.values(done).filter(Boolean).length;
+  const nb=document.getElementById('nb-today');if(nb)nb.textContent=cnt+'/'+HABITS.length;
+  const nbt=document.getElementById('nb-trades');if(nbt)nbt.textContent=S.trades.length;
+  const todaySess=S.sessions.filter(s=>s.date===tk);
+  const tm=todaySess.reduce((a,s)=>a+s.dur,0);
+  const nbdw=document.getElementById('nb-dw');if(nbdw)nbdw.textContent=(tm/60).toFixed(1)+'სთ';
+}
+
+// ═══════════════════════════════════════
+// HABITS
+// ═══════════════════════════════════════
+function renderToday(){
+  const tk=TK();const done=S.habits[tk]||{};
+  const catCls={t:'badge-t',b:'badge-b',e:'badge-e'};
+  const catLbl={t:'Trading',b:'Body',e:'E-Com'};
+  const hl=document.getElementById('habitList');
+  if(!hl)return;
+  hl.innerHTML=HABITS.map(h=>{
+    const on=!!done[h.id];
+    return`<div class="habit-row">
+      <div class="habit-info">
+        <div class="habit-name">${h.name}<span class="badge ${catCls[h.cat]}">${catLbl[h.cat]}</span></div>
+        <div class="habit-trig">${h.trig}</div>
+        <div class="week-dots">${wDots(h.id)}</div>
+      </div>
+      <button class="check ${on?'on':''}" onclick="toggleH('${h.id}')">${on?'✓':'+'}</button>
+    </div>`;
+  }).join('');
+  updTodayMetrics();
+  const jt=document.getElementById('journalTxt');
+  if(jt)jt.value=S.journal[tk]?.text||'';
+  renderJournalHistory();
+}
+
+function wDots(hid){
+  return Array.from({length:7},(_,i)=>{
+    const d=new Date();d.setDate(d.getDate()-(6-i));
+    const k=d.toISOString().slice(0,10),isT=i===6;
+    const on=!!(S.habits[k]&&S.habits[k][hid]);
+    return`<div class="dot ${on?'on':''} ${isT&&!on?'now':''}"></div>`;
+  }).join('');
+}
+
+function toggleH(hid){
+  const tk=TK();
+  if(!S.habits[tk])S.habits[tk]={};
+  S.habits[tk][hid]=!S.habits[tk][hid];
+  save();renderToday();updateNavBadges();
+  const ss=document.getElementById('sStreak');if(ss)ss.textContent=calcStreak();
+}
+
+function calcStreak(){
+  let s=0;
+  for(let i=0;i<90;i++){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    const dd=S.habits[k]||{};
+    if(Object.values(dd).filter(Boolean).length>=4)s++;else break;
+  }
+  return s;
+}
+
+function updTodayMetrics(){
+  const tk=TK(),done=S.habits[tk]||{};
+  const cnt=Object.values(done).filter(Boolean).length;
+  const de=document.getElementById('t-done');if(de)de.textContent=cnt+'/'+HABITS.length;
+  let tot=0,dc=0;
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    const dd=S.habits[k]||{};
+    HABITS.forEach(h=>{tot++;if(dd[h.id])dc++;});
+  }
+  const pct=tot?Math.round(dc/tot*100):0;
+  const wp=document.getElementById('t-wpct');if(wp)wp.textContent=pct+'%';
+  const sk=document.getElementById('t-streak');if(sk)sk.textContent=calcStreak()+'🔥';
+  const ss=document.getElementById('sStreak');if(ss)ss.textContent=calcStreak();
+  const todaySess=S.sessions.filter(s=>s.date===tk);
+  const tm=todaySess.reduce((a,s)=>a+s.dur,0);
+  const dw=document.getElementById('t-dw');if(dw)dw.textContent=(tm/60).toFixed(1)+'სთ';
+  updateNavBadges();
+}
+
+// ═══════════════════════════════════════
+// JOURNAL
+// ═══════════════════════════════════════
+function saveJournal(){
+  const tk=TK(),txt=document.getElementById('journalTxt').value;
+  S.journal[tk]={text:txt,ts:new Date().toISOString()};
+  save();renderJournalHistory();
+  const b=event.target;b.textContent='✓ შენახულია';setTimeout(()=>b.textContent='შენახვა',2000);
+}
+
+function renderJournalHistory(){
+  const jh=document.getElementById('journalHistory');if(!jh)return;
+  const entries=Object.entries(S.journal).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
+  if(!entries.length){jh.innerHTML='';return;}
+  jh.innerHTML='<div style="font-size:10px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;font-family:JetBrains Mono,monospace">ბოლო ჩანაწერები</div>'+
+    entries.map(([d,v])=>`<div class="jentry"><div class="jdate">${d}</div><div class="jtext">${(v.text||v).slice(0,200)}${(v.text||v).length>200?'…':''}</div></div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// TRADING
+// ═══════════════════════════════════════
+let trFilter='all';
+function setTFilter(f,el){
+  trFilter=f;
+  document.querySelectorAll('#tradeTabs .filter-tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  renderTradeList();
+}
+
+function calcRR(){
+  const risk=parseFloat(document.getElementById('tr-risk').value)||0;
+  const reward=parseFloat(document.getElementById('tr-reward').value)||0;
+  const disp=document.getElementById('tr-rr-display');
+  if(!disp)return;
+  if(risk>0&&reward>0){
+    const rr=(reward/risk).toFixed(2);
+    disp.value=rr+'R';
+    disp.style.color=rr>=1?'var(--green)':'var(--red)';
+  }else{
+    disp.value='';
+  }
+}
+
+function addTrade(){
+  const amt=parseFloat(document.getElementById('tr-amt').value);
+  if(isNaN(amt)||amt<=0)return;
+  const risk=parseFloat(document.getElementById('tr-risk').value)||0;
+  const reward=parseFloat(document.getElementById('tr-reward').value)||0;
+  const rr=risk>0&&reward>0?parseFloat((reward/risk).toFixed(2)):null;
+  S.trades.push({
+    id:Date.now(),
+    pair:document.getElementById('tr-pair').value||'N/A',
+    strat:document.getElementById('tr-strat').value||'',
+    type:document.getElementById('tr-type').value,
+    amt,risk,reward,rr,
+    emo:document.getElementById('tr-emo').value,
+    sess:document.getElementById('tr-sess').value,
+    note:document.getElementById('tr-note').value,
+    date:document.getElementById('tr-date').value||TK()
+  });
+  save();
+  clearTradeForm();
+  renderTrading();
+  updateNavBadges();
+}
+
+function clearTradeForm(){
+  ['tr-pair','tr-strat','tr-amt','tr-risk','tr-reward','tr-note','tr-rr-display'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+}
+
+function delTrade(id){
+  if(!confirm('ტრეიდის წაშლა?'))return;
+  S.trades=S.trades.filter(t=>t.id!==id);
+  save();renderTrading();updateNavBadges();
+}
+
+function renderTrading(){
+  const month=TK().slice(0,7);
+  const mt=S.trades.filter(t=>t.date.startsWith(month));
+  let pnl=0,payout=0,wins=0,losses=0,rrSum=0,rrCnt=0,maxRR=0;
+  const stratMap={};
+  mt.forEach(t=>{
+    if(t.type==='win'){pnl+=t.amt;wins++;}
+    else if(t.type==='loss'){pnl-=Math.abs(t.amt);losses++;}
+    else if(t.type==='payout')payout+=t.amt;
+    if(t.rr){rrSum+=t.rr;rrCnt++;if(t.rr>maxRR)maxRR=t.rr;}
+    if(t.strat){
+      if(!stratMap[t.strat])stratMap[t.strat]={w:0,l:0,pnl:0,rr:[]};
+      if(t.type==='win'){stratMap[t.strat].w++;stratMap[t.strat].pnl+=t.amt;}
+      else if(t.type==='loss'){stratMap[t.strat].l++;stratMap[t.strat].pnl-=Math.abs(t.amt);}
+      if(t.rr)stratMap[t.strat].rr.push(t.rr);
+    }
+  });
+  const el=id=>document.getElementById(id);
+  if(el('tr-pnl')){el('tr-pnl').textContent=(pnl>=0?'+':'')+'$'+Math.abs(pnl).toFixed(0);el('tr-pnl').className='mc-val '+(pnl>=0?'g':'r');}
+  if(el('tr-wr'))el('tr-wr').textContent=(wins+losses)?Math.round(wins/(wins+losses)*100)+'%':'—';
+  if(el('tr-wl-sub'))el('tr-wl-sub').textContent=wins+'W / '+losses+'L';
+  if(el('tr-rr'))el('tr-rr').textContent=rrCnt?rrSum.toFixed(2)+'R':'—';
+  if(el('tr-maxrr'))el('tr-maxrr').textContent=maxRR>0?maxRR.toFixed(2)+'R':'—';
+  if(el('tr-po'))el('tr-po').textContent='$'+payout.toFixed(0);
+  if(el('tr-cnt'))el('tr-cnt').textContent=S.trades.length;
+  const bestStrat=Object.entries(stratMap).sort((a,b)=>b[1].pnl-a[1].pnl)[0];
+  if(el('tr-best'))el('tr-best').textContent=bestStrat?bestStrat[0]:'—';
+
+  // Risk meter
+  const riskPct=wins+losses>0?Math.round(losses/(wins+losses)*100):0;
+  const rmw=el('riskMeterWrap');
+  if(wins+losses>0&&rmw){
+    rmw.style.display='block';
+    const rb=el('riskBar');if(rb)rb.style.width=riskPct+'%';
+    const rv=el('riskVal');
+    if(rv){rv.textContent=riskPct+'% Loss';rv.style.color=riskPct>50?'var(--red)':riskPct>30?'var(--amber)':'var(--green)';}
+  }
+
+  renderTradeList();
+  renderEquityChart();
+  renderCalendar();
+  renderStratAnalysis();
+  renderDashboard();
+}
+
+function renderTradeList(){
+  const list=document.getElementById('tradeList');if(!list)return;
+  let trades=trFilter==='all'?[...S.trades]:S.trades.filter(t=>t.type===trFilter);
+  trades=trades.sort((a,b)=>b.date.localeCompare(a.date));
+  const tc=document.getElementById('tradeCount');if(tc)tc.textContent=trades.length+' ჩანაწ.';
+  if(!trades.length){list.innerHTML='<div class="empty"><div class="empty-icon">📈</div>ჩანაწერი არ არის</div>';return;}
+  const emoCls={calm:'emo-calm',fomo:'emo-fomo',revenge:'emo-revenge',over:'emo-over'};
+  const emoLbl={calm:'😌 Disciplined',fomo:'😰 FOMO',revenge:'😤 Revenge',over:'🤩 OverConf.'};
+  const sessLbl={london:'🇬🇧',ny:'🗽',asian:'🌏',overlap:'🔁'};
+  list.innerHTML=trades.map(t=>{
+    const abs=Math.abs(t.amt);
+    return`<div class="trade-row">
+      <div class="type-dot ${t.type}"></div>
+      <div class="trade-left">
+        <div class="trade-pair">
+          <span style="font-weight:700">${t.pair}</span>
+          ${t.strat?`<span style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;background:var(--bg3);padding:1px 6px;border-radius:4px">${t.strat}</span>`:''}
+          <span class="emo-badge ${emoCls[t.emo]||''}">${emoLbl[t.emo]||''}</span>
+        </div>
+        <div class="trade-meta">
+          <span>${t.date}</span>
+          ${t.sess?`<span>${sessLbl[t.sess]||''} ${t.sess}</span>`:''}
+          ${t.risk?`<span>R: $${t.risk}</span>`:''}
+          ${t.reward?`<span>RW: $${t.reward}</span>`:''}
+        </div>
+        ${t.note?`<div class="trade-note-txt">${t.note.slice(0,120)}${t.note.length>120?'…':''}</div>`:''}
+      </div>
+      <div class="trade-right">
+        ${t.rr?`<span class="rr-badge ${t.rr>=1?'rr-pos':'rr-neg'}">${t.rr}R</span>`:''}
+        <div class="pnl ${t.type}">${t.type==='loss'?'-':t.type==='payout'?'':'+'}\$${abs.toFixed(0)}</div>
+        <button class="del-btn" onclick="delTrade(${t.id})" title="წაშლა">×</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderEquityChart(){
+  const sorted=[...S.trades].filter(t=>t.type!=='payout').sort((a,b)=>a.date.localeCompare(b.date));
+  let cum=0;
+  const vals=sorted.map(t=>{cum+=(t.type==='win'?t.amt:-Math.abs(t.amt));return parseFloat(cum.toFixed(2));});
+  const labels=sorted.map((t,i)=>i===0||i===sorted.length-1?t.date.slice(5):'');
+  const full=sorted.map(t=>t.date.slice(5));
+  const last=vals[vals.length-1]??0;
+  const pos=last>=0;
+  const col=pos?'#16C97A':'#F04747';
+  const bg=pos?'rgba(22,201,122,0.07)':'rgba(240,71,71,0.07)';
+  mkChart('trEquityChart',{
+    type:'line',
+    data:{labels:full.length?full:['—'],datasets:[{
+      data:vals.length?vals:[0],borderColor:col,borderWidth:2,fill:true,
+      backgroundColor:bg,tension:.35,pointRadius:0,
+      pointHoverRadius:4,pointHoverBackgroundColor:col
+    }]},
+    options:{...baseOpts,plugins:{...baseOpts.plugins,tooltip:{...baseOpts.plugins.tooltip,callbacks:{label:ctx=>'PnL: $'+ctx.parsed.y.toFixed(2)}}}}
+  });
+}
+
+// ═══════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════
+let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
+function renderCalendar(){
+  const ct=document.getElementById('calTitle');if(ct)ct.textContent=MONTHS_FULL[calMonth]+' '+calYear;
+  const grid=document.getElementById('calGrid');if(!grid)return;
+  const first=new Date(calYear,calMonth,1).getDay();
+  const days=new Date(calYear,calMonth+1,0).getDate();
+  const today=TK();
+  const tradeMap={};
+  S.trades.forEach(t=>{
+    if(!tradeMap[t.date])tradeMap[t.date]={pnl:0,cnt:0};
+    tradeMap[t.date].pnl+=(t.type==='win'?t.amt:t.type==='loss'?-Math.abs(t.amt):0);
+    if(t.type!=='payout')tradeMap[t.date].cnt++;
+  });
+  let html=DAYS.map(d=>`<div class="cal-day-hd">${d}</div>`).join('');
+  for(let i=0;i<first;i++)html+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=days;d++){
+    const k=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const td=tradeMap[k];
+    let cls='neutral';
+    if(td&&td.cnt>0)cls=td.pnl>0?'win':'loss';
+    const isT=k===today?'today-mark':'';
+    const tip=td?`${td.cnt} ტრეიდი · $${td.pnl.toFixed(0)}`:'';
+    html+=`<div class="cal-day ${cls} ${isT}" title="${tip}">${d}</div>`;
+  }
+  grid.innerHTML=html;
+}
+
+// ═══════════════════════════════════════
+// STRATEGY ANALYSIS
+// ═══════════════════════════════════════
+function renderStratAnalysis(){
+  const el=document.getElementById('stratAnalysis');if(!el)return;
+  const stratMap={};
+  S.trades.filter(t=>t.strat&&t.type!=='payout').forEach(t=>{
+    if(!stratMap[t.strat])stratMap[t.strat]={w:0,l:0,pnl:0,rrs:[]};
+    if(t.type==='win'){stratMap[t.strat].w++;stratMap[t.strat].pnl+=t.amt;}
+    else{stratMap[t.strat].l++;stratMap[t.strat].pnl-=Math.abs(t.amt);}
+    if(t.rr)stratMap[t.strat].rrs.push(t.rr);
+  });
+  const entries=Object.entries(stratMap).sort((a,b)=>b[1].pnl-a[1].pnl);
+  if(!entries.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div>სტრატეგია ჯერ არ არის</div>';return;}
+  el.innerHTML=entries.map(([name,v])=>{
+    const tot=v.w+v.l,wr=tot?Math.round(v.w/tot*100):0;
+    const pos=v.pnl>=0;
+    const avgRR=v.rrs.length?(v.rrs.reduce((a,b)=>a+b,0)/v.rrs.length).toFixed(2):'—';
+    return`<div class="strat-row">
+      <div>
+        <div class="strat-name">${name}</div>
+        <div class="strat-stats">
+          <span>${wr}% WR</span><span>${tot} ტრ.</span>${avgRR!=='—'?`<span>${avgRR}R avg</span>`:''}
+        </div>
+        <div class="wr-bar-wrap"><div class="wr-bar" style="width:${wr}%;background:${wr>=50?'var(--green)':'var(--red)'}"></div></div>
+      </div>
+      <div class="strat-pnl" style="color:${pos?'var(--green)':'var(--red)'}">${pos?'+':''}\$${Math.abs(v.pnl).toFixed(0)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// E-COMMERCE
+// ═══════════════════════════════════════
+let taskPriFilter='all';
+function setPriority(p,el){
+  taskPriFilter=p;
+  document.querySelectorAll('#prioritySeg .seg-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');renderEcom();
+}
+function saveEcom(){
+  const rev=parseFloat(document.getElementById('ec-rev-in').value)||0;
+  const spend=parseFloat(document.getElementById('ec-spend-in').value)||0;
+  const ord=parseInt(document.getElementById('ec-ord-in').value)||0;
+  const conv=parseFloat(document.getElementById('ec-conv-in').value)||0;
+  S.ecom.rev=rev;S.ecom.spend=spend;S.ecom.orders=ord;S.ecom.conv=conv;
+  if(!S.ecom.history)S.ecom.history=[];
+  const month=TK().slice(0,7);
+  const ex=S.ecom.history.findIndex(h=>h.month===month);
+  const entry={month,rev,spend,orders:ord,conv};
+  if(ex>=0)S.ecom.history[ex]=entry;
+  else S.ecom.history.push(entry);
+  save();renderEcom();
+  const b=event.target;b.textContent='✓ შენახ.';setTimeout(()=>b.textContent='შენახვა',2000);
+}
+function loadEcomInputs(){
+  const e=S.ecom;const f=id=>document.getElementById(id);
+  if(f('ec-rev-in')&&e.rev)f('ec-rev-in').value=e.rev;
+  if(f('ec-spend-in')&&e.spend)f('ec-spend-in').value=e.spend;
+  if(f('ec-ord-in')&&e.orders)f('ec-ord-in').value=e.orders;
+  if(f('ec-conv-in')&&e.conv)f('ec-conv-in').value=e.conv;
+}
+function addTask(){
+  const inp=document.getElementById('taskIn');const txt=inp.value.trim();if(!txt)return;
+  const tk=TK();if(!S.tasks[tk])S.tasks[tk]=[];
+  S.tasks[tk].push({id:Date.now(),text:txt,done:false,pri:document.getElementById('taskPri').value});
+  save();inp.value='';renderEcom();
+}
+function toggleTask(id){
+  const tk=TK();const t=(S.tasks[tk]||[]).find(t=>t.id===id);
+  if(t){t.done=!t.done;save();renderEcom();}
+}
+function delTask(id){
+  const tk=TK();S.tasks[tk]=(S.tasks[tk]||[]).filter(t=>t.id!==id);save();renderEcom();
+}
+function renderEcom(){
+  const e=S.ecom;
+  const rev=e.rev||0,ord=e.orders||0,spend=e.spend||0,conv=e.conv||0;
+  const aov=ord>0?(rev/ord):0;const roas=spend>0?(rev/spend):0;
+  const el=id=>document.getElementById(id);
+  if(el('ec-rev'))el('ec-rev').textContent='$'+rev.toFixed(0);
+  if(el('ec-ord'))el('ec-ord').textContent=ord;
+  if(el('ec-aov'))el('ec-aov').textContent=aov>0?'$'+aov.toFixed(0):'—';
+  if(el('ec-conv'))el('ec-conv').textContent=conv?conv.toFixed(1)+'%':'—';
+  if(el('ec-roas')){el('ec-roas').textContent=roas>0?roas.toFixed(2)+'x':'—';el('ec-roas').className='mc-val '+(roas>=2?'g':roas>=1?'a':'r');}
+  const tk=TK();const tasks=S.tasks[tk]||[];
+  const filt=taskPriFilter==='all'?tasks:tasks.filter(t=>t.pri===taskPriFilter);
+  const done=tasks.filter(t=>t.done).length;
+  if(el('ec-tasks'))el('ec-tasks').textContent=done+'/'+tasks.length;
+  const tl=el('taskList');
+  if(tl){
+    if(!filt.length){tl.innerHTML='<div class="empty"><div class="empty-icon">✅</div>ამოცანა დაამატე</div>';}
+    else{
+      const priCls={high:'p-high',med:'p-med',low:'p-low'};
+      tl.innerHTML=filt.map(t=>`<div class="task-item">
+        <div class="priority-dot ${priCls[t.pri]||'p-med'}"></div>
+        <div class="task-cb ${t.done?'on':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
+        <span class="task-txt ${t.done?'done':''}">${t.text}</span>
+        <button class="task-del" onclick="delTask(${t.id})">×</button>
+      </div>`).join('');
+    }
+  }
+  renderEcomChart();
+}
+function renderEcomChart(){
+  const hist=(S.ecom.history||[]).slice(-8);
+  if(!hist.length)return;
+  const labels=hist.map(h=>h.month.slice(5));
+  const revs=hist.map(h=>h.rev||0);
+  const spend=hist.map(h=>h.spend||0);
+  mkChart('ecomChart',{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'შემ.',data:revs,backgroundColor:'rgba(74,144,226,.5)',borderColor:'#4A90E2',borderWidth:1,borderRadius:4},
+      {label:'Ad Spend',data:spend,backgroundColor:'rgba(240,71,71,.3)',borderColor:'#F04747',borderWidth:1,borderRadius:4}
+    ]},
+    options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#9898A8',font:{size:10},padding:12}}}}
+  });
+}
+
+// ═══════════════════════════════════════
+// DEEP WORK TIMER
+// ═══════════════════════════════════════
+let T={run:false,iv:null,sec:0,total:25*60,focus:'თრეიდინგი',dur:25};
+function setFocus(f,el){
+  T.focus=f;
+  document.querySelectorAll('#focusChips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+function setDur(m,el){
+  if(T.run)return;
+  T.dur=m;T.total=m*60;T.sec=m*60;
+  document.querySelectorAll('.dur-chips .chip').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  updTimer();
+}
+function timerAct(){T.run?pauseTimer():startTimer();}
+function startTimer(){
+  if(T.sec<=0)T.sec=T.total;
+  T.run=true;
+  const sb=document.getElementById('startBtn');if(sb){sb.textContent='⏸ პაუზა';sb.className='btn btn-r';}
+  const tn=document.getElementById('timerNum');if(tn)tn.className='timer-simple run';
+  T.iv=setInterval(()=>{T.sec--;updTimer();if(T.sec<=0)timerDone();},1000);
+}
+function pauseTimer(){
+  clearInterval(T.iv);T.run=false;
+  const sb=document.getElementById('startBtn');if(sb){sb.textContent='▶ გაგრძელება';sb.className='btn btn-g';}
+  const tn=document.getElementById('timerNum');if(tn)tn.className='timer-simple';
+}
+function resetTimer(){
+  clearInterval(T.iv);T.run=false;T.sec=T.total;
+  const sb=document.getElementById('startBtn');if(sb){sb.textContent='▶ დაწყება';sb.className='btn btn-g';}
+  const tn=document.getElementById('timerNum');if(tn)tn.className='timer-simple';
+  const pb=document.getElementById('progBar');if(pb){pb.style.width='100%';pb.className='prog-bar';}
+  const tl=document.getElementById('timerLbl');if(tl)tl.textContent='მზადაა · ფოკუს სესია';
+  updTimer();
+}
+function timerDone(){
+  clearInterval(T.iv);T.run=false;
+  // notification
+  if(Notification.permission==='granted'){new Notification('Deep Work ✓',{body:T.focus+' · '+T.dur+'წთ დასრულდა!'});}
+  S.sessions.push({id:Date.now(),date:TK(),focus:T.focus,dur:T.dur,time:new Date().toLocaleTimeString('ka',{hour:'2-digit',minute:'2-digit'})});
+  save();
+  const sb=document.getElementById('startBtn');if(sb){sb.textContent='▶ დაწყება';sb.className='btn btn-g';}
+  const tn=document.getElementById('timerNum');if(tn)tn.className='timer-simple';
+  const tl=document.getElementById('timerLbl');if(tl)tl.textContent='✓ სესია დასრულდა! 🎉';
+  T.sec=T.total;updTimer();renderDW();updTodayMetrics();renderDWMetrics();
+}
+function updTimer(){
+  const m=Math.floor(T.sec/60),s=T.sec%60;
+  const tn=document.getElementById('timerNum');
+  if(tn)tn.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const pct=T.total>0?Math.round(T.sec/T.total*100):0;
+  const pb=document.getElementById('progBar');if(pb)pb.style.width=pct+'%';
+  const tl=document.getElementById('timerLbl');
+  if(tl&&T.run)tl.textContent=`${T.focus} · ${T.dur}წთ · ${Math.floor((T.total-T.sec)/60)}წთ გავიდა`;
+}
+function renderDW(){
+  const tk=TK();const sess=S.sessions.filter(s=>s.date===tk);
+  const sl=document.getElementById('sessLog');
+  if(sl){
+    sl.innerHTML=sess.length?sess.slice().reverse().map(s=>`<div class="sess-row">
+      <div class="sess-left"><div class="sess-dot"></div><span class="sess-cat">${s.focus}</span></div>
+      <span class="sess-time">${s.dur}წთ · ${s.time}</span>
+    </div>`).join(''):'<div class="empty"><div class="empty-icon">⏱</div>სესია ჯერ არ დაწყებულა</div>';
+  }
+  const tot=sess.reduce((a,s)=>a+s.dur,0);
+  const h=Math.floor(tot/60),mm=tot%60;
+  const dw=document.getElementById('dwTotal');if(dw)dw.textContent=h+':'+String(mm).padStart(2,'0')+'სთ';
+  renderDWChart();
+}
+function renderDWMetrics(){
+  const tk=TK();
+  const todaySess=S.sessions.filter(s=>s.date===tk);
+  const todayMin=todaySess.reduce((a,s)=>a+s.dur,0);
+  const el=id=>document.getElementById(id);
+  if(el('dw-today'))el('dw-today').textContent=(todayMin/60).toFixed(1)+'სთ';
+  let weekMin=0;
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);weekMin+=S.sessions.filter(s=>s.date===k).reduce((a,s)=>a+s.dur,0);}
+  if(el('dw-week'))el('dw-week').textContent=(weekMin/60).toFixed(1)+'სთ';
+  const totalSess=S.sessions.filter(s=>s.date===tk).length;
+  if(el('dw-sessions'))el('dw-sessions').textContent=totalSess;
+  const avg=totalSess>0?Math.round(todayMin/totalSess):0;
+  if(el('dw-avg'))el('dw-avg').textContent=avg+'წთ';
+}
+function renderDWChart(){
+  const labels=[];const vals=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    labels.push(DAYS[d.getDay()]);
+    vals.push(Math.round(S.sessions.filter(s=>s.date===k).reduce((a,s)=>a+s.dur,0)));
+  }
+  mkChart('dwChart',{
+    type:'bar',
+    data:{labels,datasets:[{data:vals,backgroundColor:vals.map(v=>v>=120?'rgba(22,201,122,.5)':'rgba(245,166,35,.4)'),borderColor:vals.map(v=>v>=120?'#16C97A':'#F5A623'),borderWidth:1,borderRadius:4}]},
+    options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:v=>v+'წთ'}}}}
+  });
+}
+
+// ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+function renderDashboard(){
+  const month=TK().slice(0,7);
+  const mt=S.trades.filter(t=>t.date.startsWith(month));
+  let pnl=0,wins=0,losses=0;
+  mt.forEach(t=>{if(t.type==='win'){pnl+=t.amt;wins++;}else if(t.type==='loss'){pnl-=Math.abs(t.amt);losses++;}});
+  const el=id=>document.getElementById(id);
+  if(el('dm-pnl')){el('dm-pnl').textContent=(pnl>=0?'+':'')+'\$'+pnl.toFixed(0);el('dm-pnl').className='mc-val '+(pnl>=0?'g':'r');}
+  const wr=(wins+losses)?Math.round(wins/(wins+losses)*100):null;
+  if(el('dm-wr')){el('dm-wr').textContent=wr!==null?wr+'%':'—';el('dm-wr').className='mc-val '+(wr===null?'':wr>=50?'g':'r');}
+  if(el('dm-erev'))el('dm-erev').textContent='\$'+(S.ecom.rev||0).toFixed(0);
+  let wkMin=0;
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);wkMin+=S.sessions.filter(s=>s.date===k).reduce((a,s)=>a+s.dur,0);}
+  if(el('dm-dw'))el('dm-dw').textContent=(wkMin/60).toFixed(1)+'სთ';
+  let tot2=0,dc=0;
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);const dd=S.habits[k]||{};HABITS.forEach(h=>{tot2++;if(dd[h.id])dc++;});}
+  const habPct=tot2?Math.round(dc/tot2*100):0;
+  if(el('dm-hab')){el('dm-hab').textContent=habPct+'%';el('dm-hab').className='mc-val '+(habPct>=70?'g':habPct>=40?'a':'r');}
+  const totalInc=(S.ecom.rev||0)+Math.max(0,pnl);
+  if(el('dm-total'))el('dm-total').textContent='\$'+totalInc.toFixed(0);
+
+  // Insights
+  const insights=[];
+  if(wr!==null&&wr>=60)insights.push({cls:'g',icon:'✅',text:`Win rate ${wr}% — სისტემა მუშაობს!`});
+  if(wr!==null&&wr<40)insights.push({cls:'r',icon:'⚠️',text:`Win rate ${wr}% — სტრატეგია გადახედე`});
+  if(habPct>=80)insights.push({cls:'g',icon:'🔥',text:`ჰაბიტ ${habPct}% — სტრიქი ძლიერია`});
+  if(wkMin>=600)insights.push({cls:'g',icon:'⚡',text:`${(wkMin/60).toFixed(1)}სთ Deep Work კვირაში — excellent!`});
+  if(wkMin<120)insights.push({cls:'a',icon:'⏱',text:`Deep Work ${(wkMin/60).toFixed(1)}სთ — მიზანი 10სთ/კვ.`});
+  const di=el('dashInsights');
+  if(di&&insights.length)di.innerHTML=insights.slice(0,2).map(i=>`<div class="insight ${i.cls}"><div class="insight-icon">${i.icon}</div><div class="insight-text">${i.text}</div></div>`).join('');
+
+  renderEquityDash();
+  renderWeeklyChart();
+  renderEmoChart();
+  renderIncomeCombined();
+  renderStratAnalysis();
+  renderDashDWChart();
+}
+
+function renderEquityDash(){
+  const sorted=[...S.trades].filter(t=>t.type!=='payout').sort((a,b)=>a.date.localeCompare(b.date));
+  let cum=0;
+  const vals=sorted.map(t=>{cum+=(t.type==='win'?t.amt:-Math.abs(t.amt));return parseFloat(cum.toFixed(2));});
+  const labels=sorted.map(t=>t.date.slice(5));
+  const last=vals[vals.length-1]??0;
+  const pos=last>=0;
+  mkChart('equityChart',{
+    type:'line',
+    data:{labels:labels.length?labels:['—'],datasets:[{
+      data:vals.length?vals:[0],
+      borderColor:pos?'#16C97A':'#F04747',borderWidth:2,fill:true,
+      backgroundColor:pos?'rgba(22,201,122,0.07)':'rgba(240,71,71,0.07)',
+      tension:.35,pointRadius:0,pointHoverRadius:4
+    }]},
+    options:{...baseOpts}
+  });
+}
+
+function renderWeeklyChart(){
+  const labels=[];const vals=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);
+    labels.push(DAYS[d.getDay()]);
+    let p=0;S.trades.filter(t=>t.date===k).forEach(t=>{if(t.type==='win')p+=t.amt;else if(t.type==='loss')p-=Math.abs(t.amt);});
+    vals.push(parseFloat(p.toFixed(2)));
+  }
+  mkChart('weeklyChart',{
+    type:'bar',
+    data:{labels,datasets:[{
+      data:vals,
+      backgroundColor:vals.map(v=>v>=0?'rgba(22,201,122,.45)':'rgba(240,71,71,.45)'),
+      borderColor:vals.map(v=>v>=0?'#16C97A':'#F04747'),
+      borderWidth:1,borderRadius:5
+    }]},
+    options:{...baseOpts,plugins:{...baseOpts.plugins,tooltip:{...baseOpts.plugins.tooltip,callbacks:{label:ctx=>'PnL: $'+ctx.parsed.y.toFixed(2)}}}}
+  });
+}
+
+function renderEmoChart(){
+  const emoCnt={calm:0,fomo:0,revenge:0,over:0};
+  S.trades.forEach(t=>{if(emoCnt.hasOwnProperty(t.emo))emoCnt[t.emo]++;});
+  const vals=Object.values(emoCnt);
+  const total=vals.reduce((a,b)=>a+b,0);
+  if(!total)return;
+  mkChart('emoChart',{
+    type:'doughnut',
+    data:{
+      labels:['😌 Disciplined','😰 FOMO','😤 Revenge','🤩 OverConf.'],
+      datasets:[{
+        data:vals,
+        backgroundColor:['rgba(74,144,226,.65)','rgba(240,71,71,.65)','rgba(162,89,255,.65)','rgba(245,166,35,.65)'],
+        borderColor:['#4A90E2','#F04747','#A259FF','#F5A623'],
+        borderWidth:1,hoverOffset:4
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{color:'#9898A8',font:{size:10},padding:10,boxWidth:10}},
+        tooltip:{backgroundColor:'#18181C',borderColor:'#2E2E38',borderWidth:1}
+      },
+      cutout:'60%'
+    }
+  });
+}
+
+function renderIncomeCombined(){
+  const hist=(S.ecom.history||[]).slice(-6);
+  const labels=hist.map(h=>h.month.slice(5));
+  if(!labels.length)return;
+  const ecomRevs=hist.map(h=>h.rev||0);
+  const trRevs=hist.map(h=>{
+    let p=0;
+    S.trades.filter(t=>t.date.startsWith(h.month)&&t.type!=='payout').forEach(t=>{if(t.type==='win')p+=t.amt;else p-=Math.abs(t.amt);});
+    return parseFloat(p.toFixed(2));
+  });
+  mkChart('incomeChart',{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'E-Commerce',data:ecomRevs,backgroundColor:'rgba(74,144,226,.5)',borderColor:'#4A90E2',borderWidth:1,borderRadius:4},
+      {label:'Trading',data:trRevs,backgroundColor:trRevs.map(v=>v>=0?'rgba(22,201,122,.5)':'rgba(240,71,71,.5)'),borderColor:trRevs.map(v=>v>=0?'#16C97A':'#F04747'),borderWidth:1,borderRadius:4}
+    ]},
+    options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#9898A8',font:{size:10},padding:12,boxWidth:10}}}}
+  });
+}
+
+function renderDashDWChart(){
+  const labels=[];const vals=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);
+    labels.push(DAYS[d.getDay()]);
+    vals.push(Math.round(S.sessions.filter(s=>s.date===k).reduce((a,s)=>a+s.dur,0)));
+  }
+  mkChart('dashDwChart',{
+    type:'bar',
+    data:{labels,datasets:[{data:vals,backgroundColor:'rgba(245,166,35,.4)',borderColor:'#F5A623',borderWidth:1,borderRadius:4}]},
+    options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:v=>v+'წ'}}}}
+  });
+}
+
+// ═══════════════════════════════════════
+// STATS PAGE
+// ═══════════════════════════════════════
+function renderStats(){
+  // Full strategy analysis
+  const fsa=document.getElementById('fullStratAnalysis');
+  if(fsa){
+    const stratMap={};
+    S.trades.filter(t=>t.type!=='payout').forEach(t=>{
+      const k=t.strat||'(სტრატ. არ მითი.)';
+      if(!stratMap[k])stratMap[k]={w:0,l:0,pnl:0,rrs:[]};
+      if(t.type==='win'){stratMap[k].w++;stratMap[k].pnl+=t.amt;}
+      else{stratMap[k].l++;stratMap[k].pnl-=Math.abs(t.amt);}
+      if(t.rr)stratMap[k].rrs.push(t.rr);
+    });
+    const entries=Object.entries(stratMap).sort((a,b)=>b[1].pnl-a[1].pnl);
+    if(!entries.length){fsa.innerHTML='<div class="empty"><div class="empty-icon">📊</div>ტრეიდები არ არის</div>';}
+    else{
+      fsa.innerHTML=entries.map(([name,v])=>{
+        const tot=v.w+v.l,wr=tot?Math.round(v.w/tot*100):0;
+        const pos=v.pnl>=0;
+        const avgRR=v.rrs.length?(v.rrs.reduce((a,b)=>a+b,0)/v.rrs.length).toFixed(2):'—';
+        const maxRR=v.rrs.length?Math.max(...v.rrs).toFixed(2):'—';
+        return`<div class="strat-row">
+          <div style="flex:1">
+            <div class="strat-name">${name}</div>
+            <div class="strat-stats">
+              <span>${wr}% WR</span><span>${tot} ტრ.</span><span>${v.w}W/${v.l}L</span>${avgRR!=='—'?`<span>avg ${avgRR}R</span>`:''}${maxRR!=='—'?`<span>max ${maxRR}R</span>`:''}
+            </div>
+            <div class="wr-bar-wrap" style="width:120px"><div class="wr-bar" style="width:${wr}%;background:${wr>=50?'var(--green)':'var(--red)'}"></div></div>
+          </div>
+          <div class="strat-pnl" style="color:${pos?'var(--green)':'var(--red)'}">${pos?'+':''}\$${Math.abs(v.pnl).toFixed(0)}</div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // Session analysis chart
+  const sessMap={london:0,ny:0,asian:0,overlap:0};
+  const sessPnl={london:0,ny:0,asian:0,overlap:0};
+  S.trades.filter(t=>t.sess&&t.type!=='payout').forEach(t=>{
+    if(sessMap.hasOwnProperty(t.sess)){
+      sessMap[t.sess]++;
+      sessPnl[t.sess]+=(t.type==='win'?t.amt:-Math.abs(t.amt));
+    }
+  });
+  const sessLabels=['🇬🇧 London','🗽 New York','🌏 Asian','🔁 Overlap'];
+  const sessVals=Object.values(sessPnl);
+  mkChart('sessChart',{
+    type:'bar',
+    data:{labels:sessLabels,datasets:[{
+      data:sessVals,
+      backgroundColor:sessVals.map(v=>v>=0?'rgba(22,201,122,.5)':'rgba(240,71,71,.5)'),
+      borderColor:sessVals.map(v=>v>=0?'#16C97A':'#F04747'),
+      borderWidth:1,borderRadius:4
+    }]},
+    options:{...baseOpts,plugins:{...baseOpts.plugins,tooltip:{...baseOpts.plugins.tooltip,callbacks:{label:ctx=>'PnL: $'+ctx.parsed.y.toFixed(2)}}}}
+  });
+  const sa=document.getElementById('sessAnalysis');
+  if(sa){
+    const sessRows=Object.entries(sessMap).map(([k,cnt])=>{
+      const pnl=sessPnl[k];const lbl={london:'🇬🇧 London',ny:'🗽 New York',asian:'🌏 Asian',overlap:'🔁 Overlap'};
+      return`<div class="stat-row"><span class="stat-label">${lbl[k]}</span><span class="stat-val" style="color:${pnl>=0?'var(--green)':'var(--red)'}">${cnt} ტრ. · ${pnl>=0?'+':''}\$${pnl.toFixed(0)}</span></div>`;
+    });
+    sa.innerHTML=sessRows.join('');
+  }
+
+  // Deep Work 30 days
+  const dwLabels=[];const dwVals=[];
+  for(let i=29;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);
+    dwLabels.push(i%5===0?k.slice(5):'');
+    dwVals.push(Math.round(S.sessions.filter(s=>s.date===k).reduce((a,s)=>a+s.dur,0)));
+  }
+  mkChart('dwLongChart',{
+    type:'bar',
+    data:{labels:dwLabels,datasets:[{data:dwVals,backgroundColor:'rgba(245,166,35,.4)',borderColor:'#F5A623',borderWidth:1,borderRadius:3}]},
+    options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,ticks:{...baseOpts.scales.y.ticks,callback:v=>v+'წ'}}}}
+  });
+
+  // Habit 4 weeks
+  const habWeekLabels=[];const habWeekVals=[];
+  for(let w=3;w>=0;w--){
+    let tot=0,done=0;
+    for(let d=6;d>=0;d--){
+      const dt=new Date();dt.setDate(dt.getDate()-(w*7+d));
+      const k=dt.toISOString().slice(0,10);
+      const dd=S.habits[k]||{};
+      HABITS.forEach(h=>{tot++;if(dd[h.id])done++;});
+    }
+    habWeekLabels.push(`კვ-${4-w}`);
+    habWeekVals.push(tot?Math.round(done/tot*100):0);
+  }
+  mkChart('habitChart',{
+    type:'line',
+    data:{labels:habWeekLabels,datasets:[{
+      data:habWeekVals,borderColor:'#16C97A',borderWidth:2,fill:true,
+      backgroundColor:'rgba(22,201,122,0.07)',tension:.4,pointRadius:4,
+      pointBackgroundColor:'#16C97A'
+    }]},
+    options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,min:0,max:100,ticks:{...baseOpts.scales.y.ticks,callback:v=>v+'%'}}}}
+  });
+
+  // Emotion correlation
+  const ec=document.getElementById('emoCorrelation');
+  if(ec){
+    const emos={calm:{pnl:0,cnt:0,wins:0},fomo:{pnl:0,cnt:0,wins:0},revenge:{pnl:0,cnt:0,wins:0},over:{pnl:0,cnt:0,wins:0}};
+    S.trades.filter(t=>t.type!=='payout'&&emos[t.emo]).forEach(t=>{
+      emos[t.emo].cnt++;
+      emos[t.emo].pnl+=(t.type==='win'?t.amt:-Math.abs(t.amt));
+      if(t.type==='win')emos[t.emo].wins++;
+    });
+    const emoLbls={calm:'😌 Disciplined',fomo:'😰 FOMO',revenge:'😤 Revenge',over:'🤩 OverConf.'};
+    ec.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">'+
+      Object.entries(emos).map(([k,v])=>{
+        const wr=v.cnt?Math.round(v.wins/v.cnt*100):0;
+        const pos=v.pnl>=0;
+        return`<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:14px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:8px">${emoLbls[k]}</div>
+          <div style="font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;color:${pos?'var(--green)':'var(--red)'}">${pos?'+':''}\$${Math.abs(v.pnl).toFixed(0)}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px;font-family:'JetBrains Mono',monospace">${v.cnt} ტრ. · ${wr}% WR</div>
+        </div>`;
+      }).join('')+'</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+// REVIEW
+// ═══════════════════════════════════════
+let reviewRating=3;
+function setRating(r,el){
+  reviewRating=r;
+  document.querySelectorAll('.rating-tag').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+}
+function saveReview(){
+  S.reviews.push({
+    date:TK(),rating:reviewRating,
+    q1:document.getElementById('rv1').value,q2:document.getElementById('rv2').value,
+    q3:document.getElementById('rv3').value,q4:document.getElementById('rv4').value,
+    q5:document.getElementById('rv5').value,q6:document.getElementById('rv6').value
+  });
+  save();
+  ['rv1','rv2','rv3','rv4','rv5','rv6'].forEach(id=>document.getElementById(id).value='');
+  renderReview();
+  const b=event.target;b.textContent='✓ შენახულია';setTimeout(()=>b.textContent='შენახვა',2000);
+}
+function renderReview(){
+  const rh=document.getElementById('reviewHist');if(!rh)return;
+  if(!S.reviews.length){rh.innerHTML='<div class="empty"><div class="empty-icon">📖</div>ჯერ მიმოხილვა არ არის</div>';return;}
+  const ratings=['','😔','😐','😊','🔥'];
+  rh.innerHTML=[...S.reviews].reverse().slice(0,10).map(r=>`
+    <div class="jentry">
+      <div class="jdate">${r.date} ${ratings[r.rating]||''}</div>
+      ${r.q1?`<div class="jtext"><span style="color:var(--green)">✅</span> ${r.q1.slice(0,120)}</div>`:''}
+      ${r.q4?`<div class="jtext"><span style="color:var(--amber)">📈</span> ${r.q4.slice(0,120)}</div>`:''}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// NOTIFICATION PERMISSION
+// ═══════════════════════════════════════
+if('Notification' in window&&Notification.permission==='default'){
+  Notification.requestPermission();
+}
+
+// ═══════════════════════════════════════
+// START
+// ═══════════════════════════════════════
+init();
+</script>
+</body>
+</html>
